@@ -38,6 +38,16 @@ def account_search(company):
         print("The LLM did not return a JSON")
         return None
     
+    data_from_json["company"] = company
     return data_from_json
 
-print(account_search("Banca Intesa Sanpaolo"))
+
+
+def sales_brief(data_from_json):
+    return (f"{data_from_json['company']}'s sector is {data_from_json['sector']}, focused on {data_from_json['sub_sector']}. {data_from_json['company']}'s number of employees is {data_from_json['employees']}, with total revenue of {data_from_json['revenue']}.")
+
+
+company = input("Hi, I'm DavAIde, your sales agent here to support you. Which company would you like to research today? ")
+risultato = account_search(company)
+testo = sales_brief (risultato)
+print(testo)
