@@ -44,10 +44,24 @@ def account_search(company):
 
 
 def sales_brief(data_from_json):
+    if data_from_json['sector'] is None and data_from_json['sub_sector'] is None and data_from_json['employees'] is None and data_from_json['revenue'] is None:
+        return "There is not enough data available to provide a sales brief"
+    if data_from_json['sector'] is None:
+        data_from_json['sector'] = "unknown"
+    if data_from_json['sub_sector'] is None:
+        data_from_json['sub_sector'] = "an unknown area"
+    if data_from_json['employees'] is None:
+        data_from_json['employees'] = "unknown"
+    if data_from_json['revenue'] is None:
+        data_from_json['revenue'] = "an unknown value"
+
     return (f"{data_from_json['company']}'s sector is {data_from_json['sector']}, focused on {data_from_json['sub_sector']}. {data_from_json['company']}'s number of employees is {data_from_json['employees']}, with total revenue of {data_from_json['revenue']}.")
 
 
-company = input("Hi, I'm DavAIde, your sales agent here to support you. Which company would you like to research today? ")
+company = input("Hi, I'm DavAIde, your sales agent here to support you. Which company would you like to research today? ").strip()
 risultato = account_search(company)
-testo = sales_brief (risultato)
-print(testo)
+if risultato is not None:
+    testo = sales_brief (risultato)
+    print(testo)
+else:
+    print("There is not enough data available to generate the sales brief")
