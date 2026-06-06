@@ -6,9 +6,11 @@ account quickly. It calls an LLM and returns the brief as structured data,
 so the output can be read by a person today and consumed by an automated
 agent later.
 
-> **Status:** 🚧 In progress. This is Project A of a six-month AI Engineering
-> portfolio — the foundation that later grows into a RAG system and an
-> autonomous sales agent. Core functionality is still being built.
+> **Status:** 🚧 In progress. Core is working end-to-end — give it a company
+> name and it returns a structured brief, with error handling for network and
+> malformed-response failures. Currently expanding toward graceful handling of
+> missing fields, multi-company batching, file output, and an eventual agentic
+> workflow. Project A of a six-month AI Engineering portfolio.
 
 ## How it works
 
@@ -30,8 +32,6 @@ agent will use downstream, while the formatted prose is what a human reads.
 
 ## Installation & usage
 
-> ⚠️ Work in progress — these steps will be finalized as the tool is built.
-
 ```bash
 # Clone the repository
 git clone https://github.com/davide96a/account_research_assistant.git
@@ -47,16 +47,24 @@ pip install -r requirements.txt
 # Add your OpenAI API key to a .env file
 # OPENAI_API_KEY=your_key_here
 
-# Run (command to be added)
+# Run
+python main.py
 ```
+
+The tool will ask which company to research, then print a structured brief.
 
 ## Roadmap
 
-- [ ] Define the output contract (fields the brief must contain)
-- [ ] First LLM call returning structured data
-- [ ] Parsing and validation of the response
-- [ ] Formatting into a human-readable brief
-- [ ] Error handling
+- [x] Define the output contract (sector, sub-sector, employees, revenue)
+- [x] First LLM call returning structured data
+- [x] Parse the response into a Python dictionary
+- [x] Format it into a human-readable sales brief
+- [x] Error handling (network failure + malformed response)
+- [x] Interactive company input at runtime
+- [ ] Graceful handling of None / missing fields
+- [ ] Loop for researching multiple companies
+- [ ] Export briefs to file
+- [ ] Evolve toward an agentic workflow
 - [ ] Tests
 
 ---

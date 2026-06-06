@@ -42,7 +42,6 @@ def account_search(company):
     return data_from_json
 
 
-
 def sales_brief(data_from_json):
     if data_from_json['sector'] is None and data_from_json['sub_sector'] is None and data_from_json['employees'] is None and data_from_json['revenue'] is None:
         return "There is not enough data available to provide a sales brief"
