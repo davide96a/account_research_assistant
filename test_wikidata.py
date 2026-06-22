@@ -81,13 +81,23 @@ def check_whether_is_company(entity_data):
     return False
 
 
+def display_n_choose_company(companies_list):
+    for index, element in enumerate(companies_list):
+        print(index +1, "-", element["description"])
+    chosen = input("Type the number of the companies you want to explore. If more than 1, separate them with a comma (e.g. '1,3')")
+    chosen = chosen.split(",")
+    companies_id_list = []
+    for element in chosen:
+        number = (int(element.strip()) -1)
+        companies_id_list.append(companies_list[number]["id"])
+    return companies_id_list
 
 
 company_input = input("Hi, I'm DavAIde, your sales agent here to support you. Which company would you like to research today? ")
 wikidata_id_list = find_wikidata_id_list(company_input)
 companies_list = filter_entities_id(wikidata_id_list)
-print(companies_list)
-
+chosen_companies = display_n_choose_company(companies_list)
+print(chosen_companies)
 
 
 
