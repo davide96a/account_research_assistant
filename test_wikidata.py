@@ -1,6 +1,6 @@
 import requests
 
-def find_wikidata_id(company):
+def find_wikidata_id_list(company):
     url = "https://www.wikidata.org/w/api.php"
     params = {
         "action": "wbsearchentities",
@@ -26,11 +26,22 @@ def find_wikidata_id(company):
         print("There's been an error during the request execution")
         return None
     data_id = response.json()
-    lista = []
+    wikidata_id_list = []
     for element in data_id["search"]:
-        lista.append({"id": element["id"], "description": element["description"]})
-    #return lista
-    return(data_id["search"][0]["id"])
+        wikidata_id_list.append({"id": element["id"], "description": element["description"]})
+    return wikidata_id_list
+    #return(data_id["search"][0]["id"])
+
+
+
+def filter_entities_id(wikidata_id_list):
+    companies_list = []
+    for element in wikidata_id_list:
+        if check_whether_is_company(from_wikiid_to_entity_data(element["id"])):
+            companies_list.append({"id": element["id"], "description": element["description"]})
+    return companies_list
+
+
 
 
 def from_wikiid_to_entity_data(wikiid):
@@ -72,13 +83,10 @@ def check_whether_is_company(entity_data):
 
 
 
-company = input("Hi, I'm DavAIde, your sales agent here to support you. Which company would you like to research today? ")
-wikiid = find_wikidata_id(company)
-entity_data = from_wikiid_to_entity_data(wikiid)
-is_company = check_whether_is_company(entity_data)
-print(is_company)
-
-
+company_input = input("Hi, I'm DavAIde, your sales agent here to support you. Which company would you like to research today? ")
+wikidata_id_list = find_wikidata_id_list(company_input)
+companies_list = filter_entities_id(wikidata_id_list)
+print(companies_list)
 
 
 
