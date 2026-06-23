@@ -106,7 +106,10 @@ def extract_employees_from_entity_claims(entity_claims):
         return "unknown"
     for element in entity_claims["P1128"]:
         employee_number = element["mainsnak"]["datavalue"]["value"]["amount"]
-    return employee_number
+    if employee_number[0] == "+":
+        return employee_number[1:]
+    else:
+        return employee_number
 
 def extract_sector_from_entity_claims(entity_claims):
     if entity_claims.get("P452") is None:
@@ -124,7 +127,14 @@ def extract_revenue_from_entity_claims(entity_claims):
         return "unknown"
     for element in entity_claims["P2139"]:
         revenue = element["mainsnak"]["datavalue"]["value"]["amount"]
-    return revenue
+        unit_url = element["mainsnak"]["datavalue"]["value"]["unit"]
+        unit_url_list = unit_url.split("/")
+        unit_id = unit_url_list[-1]
+        revenue_unit = from_wikiid_to_label(unit_id)
+    if revenue[0] == "+":
+        return (f"{revenue[1:]} {revenue_unit}")
+    else:
+        return (f"{revenue} {revenue_unit}")
 
 
 def from_wikiid_to_label(wikiid):
