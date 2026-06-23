@@ -69,13 +69,13 @@ def from_wikiid_to_entity_data(wikiid):
         print("There's been an error during the request execution")
         return None
     entity_data_all = response.json()
-    entity_data = entity_data_all["entities"][wikiid]["claims"]["P31"]
+    entity_data = entity_data_all["entities"][wikiid]["claims"]
     return(entity_data)
 
 
 
 def check_whether_is_company(entity_data):
-    for element in entity_data:
+    for element in entity_data["P31"]:
         if element["mainsnak"]["datavalue"]["value"]["id"] == "Q4830453":
             return True 
     return False
@@ -101,22 +101,71 @@ def display_n_choose_company(companies_list):
         return None
 
 
+def extract_employees_from_entity_data(entity_data):
+    if entity_data.get("P1128") is None:
+        return "unknown"
+    for element in entity_data["P1128"]:
+        employee_number = element["mainsnak"]["datavalue"]["value"]["amount"]
+    return employee_number
+
+def extract_sector_from_entity_data(entity_data):
+    if entity_data.get("P452") is None:
+        return "unknown"
+    sectors_list = []
+    for element in entity_data["P452"]:
+        company_sector = element["mainsnak"]["datavalue"]["value"]["id"]
+        company_sector = from_wikiid_to_label(company_sector)
+        sectors_list.append(company_sector)
+    sectors_list = ", ".join(sectors_list)
+    return sectors_list
+
+
+
+
+def from_wikiid_to_label(wikiid):
+    url = "https://www.wikidata.org/w/api.php"
+    params_id = {
+        "action": "wbgetentities",
+        "ids": wikiid,
+        "format": "json",
+        "props": "labels"
+    }
+    headers = {
+    "User-Agent": "AccountResearchAssistant/1.0 (https://github.com/davide96a/account_research_assistant/tree/main)"
+    }
+
+    try:
+        response = requests.get(url, params=params_id, headers=headers, timeout=10)
+        response.raise_for_status()
+    except requests.HTTPError:
+        print("HTTP error, the server replied with", response.status_code)
+        return None
+    except requests.Timeout:
+        print("The request exceeded the time limit")
+        return None
+    except requests.RequestException:
+        print("There's been an error during the request execution")
+        return None
+    entity_data_all = response.json()
+    label = entity_data_all["entities"][wikiid]["labels"]["en"]["value"]
+    return(label)
+
+
 company_input = input("Hi, I'm DavAIde, your sales agent here to support you. Which company would you like to research today? ")
 wikidata_id_list = find_wikidata_id_list(company_input)
 companies_list = filter_entities_id(wikidata_id_list)
 chosen_companies = display_n_choose_company(companies_list)
 if chosen_companies is not None:
     print(chosen_companies)
+    for q_id in chosen_companies:
+        entity_claims = from_wikiid_to_entity_data(q_id)
+        employees = extract_employees_from_entity_data(entity_claims)
+        sector = extract_sector_from_entity_data(entity_claims)
+        print(f"The number of employees of {company_input} is", employees)
+        print(f"The sector of {company_input} is", sector)
 
 
 
-
-#response_id = requests.get(url, params=params_id, headers=headers, timeout=10)
-#data_id = response_id.json()
-#print(data_id)
-
-
-#print(find_wikidata_id("Unicredit"))
 
 
 
