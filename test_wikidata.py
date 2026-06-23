@@ -86,16 +86,16 @@ def display_n_choose_company(companies_list):
         print(index +1, "-", element["description"])
     chosen = input("Type the number of the companies you want to explore. If more than 1, separate them with a comma (e.g. '1,3'). ")
     chosen = chosen.split(",")
-    companies_id_list = []
+    companies_id_n_decription_list = []
     for element in chosen:
         try:
             number = (int(element.strip()) -1)
             if number >= 0 and number <= len(companies_list) -1:
-                companies_id_list.append(companies_list[number]["id"])
+                companies_id_n_decription_list.append({"id": companies_list[number]["id"], "description": companies_list[number]["description"]})
         except ValueError:
             continue
-    if len(companies_id_list) > 0:
-        return companies_id_list
+    if len(companies_id_n_decription_list) > 0:
+        return companies_id_n_decription_list
     else:
         print("You haven't picked any of the companies displayed")
         return None
@@ -151,18 +151,16 @@ def from_wikiid_to_label(wikiid):
     return(label)
 
 
-company_input = input("Hi, I'm DavAIde, your sales agent here to support you. Which company would you like to research today? ")
-wikidata_id_list = find_wikidata_id_list(company_input)
-companies_list = filter_entities_id(wikidata_id_list)
+company_input = input("Hi, I'm DavAIde, your sales agent here to support you. Which company would you like to research today? ").capitalize()
+wikidata_id_n_description_list = find_wikidata_id_list(company_input)
+companies_list = filter_entities_id(wikidata_id_n_description_list)
 chosen_companies = display_n_choose_company(companies_list)
 if chosen_companies is not None:
-    print(chosen_companies)
-    for q_id in chosen_companies:
-        entity_claims = from_wikiid_to_entity_data(q_id)
+    for id_n_description_list in chosen_companies:
+        entity_claims = from_wikiid_to_entity_data(id_n_description_list["id"])
         employees = extract_employees_from_entity_data(entity_claims)
         sector = extract_sector_from_entity_data(entity_claims)
-        print(f"The number of employees of {company_input} is", employees)
-        print(f"The sector of {company_input} is", sector)
+        print(f"The number of employees of {company_input}, {id_n_description_list['description']}, is {employees}, and its sector is {sector}")
 
 
 
