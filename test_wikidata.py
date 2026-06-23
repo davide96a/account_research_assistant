@@ -37,14 +37,14 @@ def find_wikidata_id_list(company):
 def filter_entities_id(wikidata_id_list):
     companies_list = []
     for element in wikidata_id_list:
-        if check_whether_is_company(from_wikiid_to_entity_data(element["id"])):
+        if check_whether_is_company(from_wikiid_to_entity_claims(element["id"])):
             companies_list.append({"id": element["id"], "description": element["description"]})
     return companies_list
 
 
 
 
-def from_wikiid_to_entity_data(wikiid):
+def from_wikiid_to_entity_claims(wikiid):
     url = "https://www.wikidata.org/w/api.php"
     params_id = {
         "action": "wbgetentities",
@@ -69,13 +69,13 @@ def from_wikiid_to_entity_data(wikiid):
         print("There's been an error during the request execution")
         return None
     entity_data_all = response.json()
-    entity_data = entity_data_all["entities"][wikiid]["claims"]
-    return(entity_data)
+    entity_claims = entity_data_all["entities"][wikiid]["claims"]
+    return(entity_claims)
 
 
 
 def check_whether_is_company(entity_data):
-    for element in entity_data["P31"]:
+    for element in entity_data.get("P31", []):
         if element["mainsnak"]["datavalue"]["value"]["id"] == "Q4830453":
             return True 
     return False
@@ -101,25 +101,30 @@ def display_n_choose_company(companies_list):
         return None
 
 
-def extract_employees_from_entity_data(entity_data):
-    if entity_data.get("P1128") is None:
+def extract_employees_from_entity_claims(entity_claims):
+    if entity_claims.get("P1128") is None:
         return "unknown"
-    for element in entity_data["P1128"]:
+    for element in entity_claims["P1128"]:
         employee_number = element["mainsnak"]["datavalue"]["value"]["amount"]
     return employee_number
 
-def extract_sector_from_entity_data(entity_data):
-    if entity_data.get("P452") is None:
+def extract_sector_from_entity_claims(entity_claims):
+    if entity_claims.get("P452") is None:
         return "unknown"
     sectors_list = []
-    for element in entity_data["P452"]:
+    for element in entity_claims["P452"]:
         company_sector = element["mainsnak"]["datavalue"]["value"]["id"]
         company_sector = from_wikiid_to_label(company_sector)
         sectors_list.append(company_sector)
     sectors_list = ", ".join(sectors_list)
     return sectors_list
 
-
+def extract_revenue_from_entity_claims(entity_claims):
+    if entity_claims.get("P2139") is None:
+        return "unknown"
+    for element in entity_claims["P2139"]:
+        revenue = element["mainsnak"]["datavalue"]["value"]["amount"]
+    return revenue
 
 
 def from_wikiid_to_label(wikiid):
@@ -157,10 +162,11 @@ companies_list = filter_entities_id(wikidata_id_n_description_list)
 chosen_companies = display_n_choose_company(companies_list)
 if chosen_companies is not None:
     for id_n_description_list in chosen_companies:
-        entity_claims = from_wikiid_to_entity_data(id_n_description_list["id"])
-        employees = extract_employees_from_entity_data(entity_claims)
-        sector = extract_sector_from_entity_data(entity_claims)
-        print(f"The number of employees of {company_input}, {id_n_description_list['description']}, is {employees}, and its sector is {sector}")
+        entity_claims = from_wikiid_to_entity_claims(id_n_description_list["id"])
+        employees = extract_employees_from_entity_claims(entity_claims)
+        sector = extract_sector_from_entity_claims(entity_claims)
+        revenue = extract_revenue_from_entity_claims(entity_claims)
+        print(f"The number of employees of {company_input}, {id_n_description_list['description']}, is {employees}, its sector is {sector} and its total revenue is {revenue}")
 
 
 
